@@ -36,4 +36,4 @@ export PKG_CONFIG_PATH="\$PKG_CONFIG_PATH:\$HOME/vendor/imagemagick/lib/pkgconfi
 EOF
 
 echo "-----> ImageMagick installed successfully"
-"$VENDOR_DIR/bin/convert" --version | head -1 | sed 's/^/       /'
+LD_LIBRARY_PATH="$VENDOR_DIR/lib" "$VENDOR_DIR/bin/convert" --version | head -1 | sed 's/^/       /'
