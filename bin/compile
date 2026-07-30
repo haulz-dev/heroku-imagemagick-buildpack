@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+# Heroku buildpack for ImageMagick 7.1.0-53 (heroku-22)
+# Binary sourced from production slug.
+
+BUILD_DIR=$1
+CACHE_DIR=$2
+
+VENDOR_DIR="$BUILD_DIR/vendor/imagemagick"
+BINARY_URL="https://github.com/haulzHQ/heroku-imagemagick-buildpack/releases/download/v1.0.0/imagemagick-heroku22.tar.gz"
+
+echo "-----> Installing ImageMagick 7.1.0-53 (heroku-22)"
+
+mkdir -p "$VENDOR_DIR"
+
+if [ -d "$CACHE_DIR/imagemagick" ]; then
+  echo "       Using cached ImageMagick"
+  cp -r "$CACHE_DIR/imagemagick/." "$VENDOR_DIR"
+else
+  echo "       Downloading ImageMagick binary..."
+  curl -sL "$BINARY_URL" | tar xz -C "$BUILD_DIR/vendor"
+  mkdir -p "$CACHE_DIR/imagemagick"
+  cp -r "$VENDOR_DIR/." "$CACHE_DIR/imagemagick"
+fi
+
+echo "       Setting up environment"
+
+mkdir -p "$BUILD_DIR/.profile.d"
+cat > "$BUILD_DIR/.profile.d/imagemagick.sh" << EOF
+export MAGICK_HOME="\$HOME/vendor/imagemagick"
+export MAGICK_CONFIGURE_PATH="\$HOME/.magick"
+export PATH="\$HOME/vendor/imagemagick/bin:\$PATH"
+export LD_LIBRARY_PATH="\$LD_LIBRARY_PATH:\$HOME/vendor/imagemagick/lib"
+export LIBRARY_PATH="\$LIBRARY_PATH:\$HOME/vendor/imagemagick/lib"
+export PKG_CONFIG_PATH="\$PKG_CONFIG_PATH:\$HOME/vendor/imagemagick/lib/pkgconfig"
+EOF
+
+echo "-----> ImageMagick installed successfully"
+"$VENDOR_DIR/bin/convert" --version | head -1 | sed 's/^/       /'
