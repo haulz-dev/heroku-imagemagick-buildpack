@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -e
 # Heroku buildpack for ImageMagick 7.1.0-53 (heroku-22)
 # Binary sourced from production slug.
 
@@ -17,7 +18,7 @@ if [ -d "$CACHE_DIR/imagemagick" ]; then
   cp -r "$CACHE_DIR/imagemagick/." "$VENDOR_DIR"
 else
   echo "       Downloading ImageMagick binary..."
-  curl -sL "$BINARY_URL" | tar xz -C "$BUILD_DIR/vendor"
+  curl -sSL --fail "$BINARY_URL" | tar xz -C "$BUILD_DIR/vendor"
   mkdir -p "$CACHE_DIR/imagemagick"
   cp -r "$VENDOR_DIR/." "$CACHE_DIR/imagemagick"
 fi
