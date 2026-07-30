@@ -7,7 +7,7 @@ Binary sourced from a working production slug. Pinned to this version for stabil
 ## Usage
 
 ```bash
-heroku buildpacks:add --index 1 https://github.com/haulzHQ/heroku-imagemagick-buildpack --app YOUR_APP
+heroku buildpacks:add --index 1 https://github.com/haulz-dev/heroku-imagemagick-buildpack --app YOUR_APP
 ```
 
 ## Version
