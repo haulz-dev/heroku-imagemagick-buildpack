@@ -28,12 +28,21 @@ echo "       Setting up environment"
 mkdir -p "$BUILD_DIR/.profile.d"
 cat > "$BUILD_DIR/.profile.d/imagemagick.sh" << EOF
 export MAGICK_HOME="\$HOME/vendor/imagemagick"
-export MAGICK_CONFIGURE_PATH="\$HOME/.magick"
+# Must match where the tarball actually puts colors.xml/delegates.xml; pointing this
+# at a missing dir silently falls back to compiled-in defaults and warns on every call.
+export MAGICK_CONFIGURE_PATH="\$HOME/vendor/imagemagick/etc/ImageMagick-7:\$HOME/vendor/imagemagick/share/ImageMagick-7"
 export PATH="\$HOME/vendor/imagemagick/bin:\$PATH"
 export LD_LIBRARY_PATH="\$LD_LIBRARY_PATH:\$HOME/vendor/imagemagick/lib"
 export LIBRARY_PATH="\$LIBRARY_PATH:\$HOME/vendor/imagemagick/lib"
 export PKG_CONFIG_PATH="\$PKG_CONFIG_PATH:\$HOME/vendor/imagemagick/lib/pkgconfig"
 EOF
 
+if [ ! -f "$VENDOR_DIR/etc/ImageMagick-7/delegates.xml" ]; then
+  echo "       ERROR: delegates.xml missing from vendored ImageMagick" >&2
+  exit 1
+fi
+
 echo "-----> ImageMagick installed successfully"
-LD_LIBRARY_PATH="$VENDOR_DIR/lib" "$VENDOR_DIR/bin/convert" --version | head -1 | sed 's/^/       /'
+LD_LIBRARY_PATH="$VENDOR_DIR/lib" \
+  MAGICK_CONFIGURE_PATH="$VENDOR_DIR/etc/ImageMagick-7:$VENDOR_DIR/share/ImageMagick-7" \
+  "$VENDOR_DIR/bin/convert" --version | head -1 | sed 's/^/       /'
